@@ -2,7 +2,7 @@
 
 void init() {
     // TODO: create Map (or World) class and apply Generator to it
-    ObjectFactory::getInstance().registerObjectClass(ObjectClass::Factory, []() -> std::unique_ptr<Object> { return std::make_unique<Factory>(); });        
+    ObjectFactory::getInstance().registerObjectClass(ObjectClass::Factory, []() -> std::unique_ptr<Object> { return std::make_unique<Factory>(); });    // TODO: should move class registration away from main space back to Factory classes 
     ObjectFactory::getInstance().createObject(ObjectClass::Factory);        // TODO: create Generator class, for creating objects in game
     ObjectFactory::getInstance().createObject(ObjectClass::Factory);
     ObjectFactory::getInstance().createObject(ObjectClass::Factory);
@@ -12,10 +12,10 @@ void init() {
 }
 
 void update() {    
-    std::cout << "state: ";     //  DEBUG
+    std::cout << "state: ";     // DEBUG
     int state;
     std::cin >> state;
-    std::cout << "objectId: ";
+    std::cout << "objectId: ";  // DEBUG
     int objectId;
     std::cin >> objectId;
     ObjectFactory::getInstance().updateObject(objectId, StateFactory::getInstance().createState(static_cast<StateClass>(state)));       // TODO: пиздец.

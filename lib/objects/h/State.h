@@ -5,11 +5,6 @@
 #include <memory>
 #include <unordered_map>
 
-enum class StateClass {
-    Operating,
-    Idle
-};
-
 class State {
 public:
     virtual void handle() = 0;
