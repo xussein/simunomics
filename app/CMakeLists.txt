@@ -1,3 +1,5 @@
+find_package(SFML REQUIRED COMPONENTS Graphics Audio Network Window System)
+
 add_executable(executable main.cpp functions.cpp)
 
 target_link_libraries(executable
@@ -5,4 +7,9 @@ target_link_libraries(executable
     player_lib
     registry_lib
     object_lib
+    SFML::Graphics
+    SFML::Audio
+    SFML::Network
+    SFML::Window
+    SFML::System
 )

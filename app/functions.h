@@ -7,6 +7,8 @@
 #include <chrono>
 #include <thread>
 
+#include <SFML/Graphics.hpp>
+
 #include "../lib/objects/h/ObjectFactory.h"
 #include "../lib/objects/h/Factory.h"
 #include "../lib/objects/h/StateFactory.h"

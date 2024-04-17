@@ -22,6 +22,20 @@ void update() {
 }
 
 void play() {
+    // TODO: keep working on SFML 
+    auto window = sf::RenderWindow(sf::VideoMode({800, 600}), "Simunomics");
+    window.setFramerateLimit(60);
+
+    while (window.isOpen()) {
+        for (auto event = sf::Event(); window.pollEvent(event);) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+        }
+        window.clear();
+        window.display();
+    }
+
     std::cout << "Starting simunomics!" << std::endl;
 
     init();
