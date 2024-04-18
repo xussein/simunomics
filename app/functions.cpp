@@ -21,21 +21,19 @@ void update() {
     ObjectFactory::getInstance().updateObject(objectId, StateFactory::getInstance().createState(static_cast<StateClass>(state)));       // TODO: пиздец.
 }
 
-void play() {
-    // TODO: keep working on SFML 
-    auto window = sf::RenderWindow(sf::VideoMode({800, 600}), "Simunomics");
-    window.setFramerateLimit(60);
+void sfmlTest() {
 
+}
+
+void sfmlPoll(sf::RenderWindow & window, std::mutex & mtx, bool & condition) {
     while (window.isOpen()) {
-        for (auto event = sf::Event(); window.pollEvent(event);) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-        }
-        window.clear();
-        window.display();
+        std::unique_lock<std::mutex> lock(mtx);
+        condition = window.hasFocus();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
+}
 
+void simunomics(std::mutex & mtx, bool & condition) {
     std::cout << "Starting simunomics!" << std::endl;
 
     init();
@@ -44,15 +42,85 @@ void play() {
     const static std::chrono::duration<double> frameDuration(1.0 / frameRate);  // our 60 fps in game
 
     while (true) {
-        auto startTime = std::chrono::high_resolution_clock::now();
-
-        update();
-
-        auto endTime = std::chrono::high_resolution_clock::now();
-        auto elapsedTime = endTime - startTime;
-
-        if (elapsedTime < frameDuration) {
-            std::this_thread::sleep_for(frameDuration - elapsedTime);
-        }
+        std::unique_lock<std::mutex> lock(mtx);
+        std::cout << "Window focus status: " << (condition ? "Focused" : "Not Focused") << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+//        update();
     }
+}
+
+void play() {
+    std::mutex mtx;
+    bool condition;     // DEBUG
+
+    // TODO: keep working on SFML
+    sf::Clock clock;    // DEBUG
+
+    sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({800, 600}), "Simunomics");
+    window.setFramerateLimit(60);
+
+    std::thread sfmlPollThread(sfmlPoll, std::ref(window), std::ref(mtx), std::ref(condition));
+    std::thread simunomicsThread(simunomics, std::ref(mtx), std::ref(condition));
+
+    while (window.isOpen()) {
+        for (sf::Event event = sf::Event(); window.pollEvent(event);) {
+            switch (event.type) {
+                case sf::Event::Closed:
+                    window.close();
+                    break;
+                case sf::Event::LostFocus:
+                    break;
+                case sf::Event::Resized:
+                    break;
+                case sf::Event::GainedFocus:
+                    break;
+                case sf::Event::TextEntered:
+                    break;
+                case sf::Event::KeyPressed:
+                    break;
+                case sf::Event::KeyReleased:
+                    break;
+                case sf::Event::MouseWheelScrolled:
+                    break;
+                case sf::Event::MouseButtonPressed:
+                    break;
+                case sf::Event::MouseButtonReleased:
+                    break;
+                case sf::Event::MouseMoved:
+                    break;
+                case sf::Event::MouseEntered:
+                    break;
+                case sf::Event::MouseLeft:
+                    break;
+                case sf::Event::JoystickButtonPressed:
+                    break;
+                case sf::Event::JoystickButtonReleased:
+                    break;
+                case sf::Event::JoystickMoved:
+                    break;
+                case sf::Event::JoystickConnected:
+                    break;
+                case sf::Event::JoystickDisconnected:
+                    break;
+                case sf::Event::TouchBegan:
+                    break;
+                case sf::Event::TouchMoved:
+                    break;
+                case sf::Event::TouchEnded:
+                    break;
+                case sf::Event::SensorChanged:
+                    break;
+                case sf::Event::Count:
+                    break;
+            }
+        }
+        window.clear();
+        window.display();
+    }
+
+    sf::Time time = clock.getElapsedTime();
+    std::cout << "Time elapsed for window opened: " << time.asSeconds() << std::endl;
+
+    sfmlPollThread.join();
+    simunomicsThread.join();
 }

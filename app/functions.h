@@ -6,6 +6,7 @@
 #include <memory>
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 #include <SFML/Graphics.hpp>
 
