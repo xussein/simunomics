@@ -7,6 +7,7 @@ target_link_libraries(executable
     player_lib
     registry_lib
     object_lib
+    misc_lib
     SFML::Graphics
     SFML::Audio
     SFML::Network

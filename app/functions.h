@@ -15,6 +15,7 @@
 #include "../lib/objects/h/StateFactory.h"
 #include "../lib/objects/h/states/Idle.h"
 #include "../lib/objects/h/states/Operating.h"
+#include "../lib/misc/h/ConsoleDebugOutput.h"
 
 void play();
 

@@ -21,19 +21,7 @@ void update() {
     ObjectFactory::getInstance().updateObject(objectId, StateFactory::getInstance().createState(static_cast<StateClass>(state)));       // TODO: пиздец.
 }
 
-void sfmlTest() {
-
-}
-
-void sfmlPoll(sf::RenderWindow & window, std::mutex & mtx, bool & condition) {
-    while (window.isOpen()) {
-        std::unique_lock<std::mutex> lock(mtx);
-        condition = window.hasFocus();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
-}
-
-void simunomics(std::mutex & mtx, bool & condition) {
+void simunomics(std::mutex & mtx, ConsoleDebugOutput & consoleDebugOutput) {
     std::cout << "Starting simunomics!" << std::endl;
 
     init();
@@ -42,8 +30,7 @@ void simunomics(std::mutex & mtx, bool & condition) {
     const static std::chrono::duration<double> frameDuration(1.0 / frameRate);  // our 60 fps in game
 
     while (true) {
-        std::unique_lock<std::mutex> lock(mtx);
-        std::cout << "Window focus status: " << (condition ? "Focused" : "Not Focused") << std::endl;
+        std::cout << "Window focus status: " << (consoleDebugOutput.isWindowInFocus ? "Focused" : "Not Focused") << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
 //        update();
     }
@@ -51,7 +38,7 @@ void simunomics(std::mutex & mtx, bool & condition) {
 
 void play() {
     std::mutex mtx;
-    bool condition;     // DEBUG
+    ConsoleDebugOutput consoleDebugOutput;     // DEBUG
 
     // TODO: keep working on SFML
     sf::Clock clock;    // DEBUG
@@ -59,8 +46,7 @@ void play() {
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({800, 600}), "Simunomics");
     window.setFramerateLimit(60);
 
-    std::thread sfmlPollThread(sfmlPoll, std::ref(window), std::ref(mtx), std::ref(condition));
-    std::thread simunomicsThread(simunomics, std::ref(mtx), std::ref(condition));
+//    std::thread simunomicsThread(simunomics, std::ref(mtx), std::ref(consoleDebugOutput));
 
     while (window.isOpen()) {
         for (sf::Event event = sf::Event(); window.pollEvent(event);) {
@@ -69,28 +55,62 @@ void play() {
                     window.close();
                     break;
                 case sf::Event::LostFocus:
+                    consoleDebugOutput.isWindowInFocus = false;
                     break;
                 case sf::Event::Resized:
                     break;
                 case sf::Event::GainedFocus:
+                    consoleDebugOutput.isWindowInFocus = true;
                     break;
                 case sf::Event::TextEntered:
                     break;
                 case sf::Event::KeyPressed:
+                    if (event.key.scancode == sf::Keyboard::Scan::Escape)
+                    {
+                        std::cout << "the escape key was pressed" << std::endl;
+//                        std::cout << "scancode: " << event.key.scancode << std::endl;
+//                        std::cout << "code: " << event.key.code << std::endl;
+                        std::cout << "control: " << event.key.control << std::endl;
+                        std::cout << "alt: " << event.key.alt << std::endl;
+                        std::cout << "shift: " << event.key.shift << std::endl;
+                        std::cout << "system: " << event.key.system << std::endl;
+                        std::cout << "description: " << sf::Keyboard::getDescription(event.key.scancode).toAnsiString() << std::endl;
+//                        std::cout << "localize: " << sf::Keyboard::localize(event.key.scancode) << std::endl;
+//                        std::cout << "delocalize: " << sf::Keyboard::delocalize(event.key.code) << std::endl;
+                    }
                     break;
                 case sf::Event::KeyReleased:
                     break;
                 case sf::Event::MouseWheelScrolled:
+                    if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Vertical)
+                        std::cout << "wheel type: vertical" << std::endl;
+                    else if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Horizontal)
+                        std::cout << "wheel type: horizontal" << std::endl;
+                    else
+                        std::cout << "wheel type: unknown" << std::endl;
+                    std::cout << "wheel movement: " << event.mouseWheelScroll.delta << std::endl;
+                    std::cout << "mouse x: " << event.mouseWheelScroll.x << std::endl;
+                    std::cout << "mouse y: " << event.mouseWheelScroll.y << std::endl;
                     break;
                 case sf::Event::MouseButtonPressed:
+                    if (event.mouseButton.button == sf::Mouse::Button::Right)
+                    {
+                        std::cout << "the right button was pressed" << std::endl;
+                        std::cout << "mouse x: " << event.mouseButton.x << std::endl;
+                        std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+                    }
                     break;
                 case sf::Event::MouseButtonReleased:
                     break;
                 case sf::Event::MouseMoved:
+                    std::cout << "new mouse x: " << event.mouseMove.x << std::endl;
+                    std::cout << "new mouse y: " << event.mouseMove.y << std::endl;
                     break;
                 case sf::Event::MouseEntered:
+                    std::cout << "the mouse cursor has entered the window" << std::endl;
                     break;
                 case sf::Event::MouseLeft:
+                    std::cout << "the mouse cursor has left the window" << std::endl;
                     break;
                 case sf::Event::JoystickButtonPressed:
                     break;
@@ -121,6 +141,5 @@ void play() {
     sf::Time time = clock.getElapsedTime();
     std::cout << "Time elapsed for window opened: " << time.asSeconds() << std::endl;
 
-    sfmlPollThread.join();
-    simunomicsThread.join();
+//    simunomicsThread.join();
 }
