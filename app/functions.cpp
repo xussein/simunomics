@@ -46,6 +46,19 @@ void play() {
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({800, 600}), "Simunomics");
     window.setFramerateLimit(60);
 
+    sf::ContextSettings contextSettings = window.getSettings();
+    std::cout << "depth bits:" << contextSettings.depthBits << std::endl;
+    std::cout << "stencil bits:" << contextSettings.stencilBits << std::endl;
+    std::cout << "antialiasing level:" << contextSettings.antialiasingLevel << std::endl;
+    std::cout << "version:" << contextSettings.majorVersion << "." << contextSettings.minorVersion << std::endl;
+
+    sf::Texture texture;
+    if (!texture.loadFromFile("res/dickbutt.JPG")) {
+        std::cerr << "[ERR] Texture loading failed!" << std::endl;
+    }
+
+    sf::Sprite sprite = sf::Sprite(texture);
+
 //    std::thread simunomicsThread(simunomics, std::ref(mtx), std::ref(consoleDebugOutput));
 
     while (window.isOpen()) {
@@ -135,6 +148,9 @@ void play() {
             }
         }
         window.clear();
+
+        window.draw(sprite);
+
         window.display();
     }
 

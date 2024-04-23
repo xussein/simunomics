@@ -15,3 +15,5 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/${GENERATOR_LIB_PATH})
 add_subdirectory(${PROJECT_SOURCE_DIR}/${REGISTRY_LIB_PATH})
 add_subdirectory(${PROJECT_SOURCE_DIR}/${OBJECT_LIB_PATH})
 add_subdirectory(${PROJECT_SOURCE_DIR}/${MISC_LIB_PATH})
+
+file(COPY res/ DESTINATION app/res/)
