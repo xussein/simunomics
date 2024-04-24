@@ -1,4 +1,5 @@
 #include "functions.h"
+#include "Map.h"
 
 void init() {
     // TODO: create Map (or World) class and apply Generator to it
@@ -53,11 +54,51 @@ void play() {
     std::cout << "version:" << contextSettings.majorVersion << "." << contextSettings.minorVersion << std::endl;
 
     sf::Texture texture;
-    if (!texture.loadFromFile("res/dickbutt.JPG")) {
+    if (!texture.loadFromFile("res/sprites/dickbutt.JPG")) {
         std::cerr << "[ERR] Texture loading failed!" << std::endl;
     }
 
     sf::Sprite sprite = sf::Sprite(texture);
+
+    sf::Font font;
+    if (!font.loadFromFile("res/fonts/cour.ttf")) {
+        std::cerr << "[ERR] Font loading failed!" << std::endl;
+    }
+    sf::Text text(font);
+    text.setString("Dickbutt!");
+    text.setCharacterSize(24);
+    text.setFillColor(sf::Color::Green);
+    text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+
+    sf::RectangleShape rectangle(sf::Vector2f(120.f, 50.f));
+    rectangle.setPosition(sf::Vector2f(400, 300));
+    rectangle.setFillColor(sf::Color::Blue);
+
+    sf::VertexArray vertexArray(sf::PrimitiveType::TriangleStrip, 4);
+    vertexArray[0].position = sf::Vector2f(300, 300);
+    vertexArray[1].position = sf::Vector2f(300, 400);
+    vertexArray[2].position = sf::Vector2f(400, 400);
+    vertexArray[3].position = sf::Vector2f(400, 250);
+    vertexArray[0].color = sf::Color::Red;
+    vertexArray[1].color = sf::Color::Green;
+    vertexArray[2].color = sf::Color::Red;
+    vertexArray[3].color = sf::Color::Blue;
+
+    const int level[] = {
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3,
+        0, 1, 0, 0, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 0, 0,
+        0, 1, 1, 0, 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 0, 0,
+        0, 0, 1, 0, 3, 0, 2, 2, 0, 0, 1, 1, 1, 1, 2, 0,
+        2, 0, 1, 0, 3, 0, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1,
+        0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1,
+    };
+
+    Map map;
+    if (!map.load("res/sprites/tileset.png", sf::Vector2u(32, 32), level, 16, 8)) {
+        std::cerr << "[ERR] Failed loading tileset!" << std::endl;
+    }
 
 //    std::thread simunomicsThread(simunomics, std::ref(mtx), std::ref(consoleDebugOutput));
 
@@ -149,7 +190,11 @@ void play() {
         }
         window.clear();
 
-        window.draw(sprite);
+//        window.draw(sprite);
+//        window.draw(text);
+//        window.draw(rectangle);
+//        window.draw(vertexArray);
+        window.draw(map);
 
         window.display();
     }
