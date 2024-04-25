@@ -1,6 +1,6 @@
 #include "Map.h"
 
-bool Map::load(const std::string &tileset, sf::Vector2u tileSize, const int *tiles, unsigned int width,
+bool Map::load(const std::string & tileset, sf::Vector2u tileSize, const int * tiles, unsigned int width,
                unsigned int height) {
     if (!m_tileset.loadFromFile(tileset)) {
         return false;
