@@ -1,5 +1,4 @@
 #include "functions.h"
-#include "Map.h"
 
 void init() {
     // TODO: create Map (or World) class and apply Generator to it
@@ -37,34 +36,53 @@ void simunomics(std::mutex & mtx, ConsoleDebugOutput & consoleDebugOutput) {
     }
 }
 
+bool isMouseClickedInsideTile(const sf::Vector2f & mousePos, const sf::VertexArray & tile) {
+    bool isInside = false;
+
+    for (size_t i = 0; i < tile.getVertexCount(); i++)
+    {
+        // Используем остаток от деления для обращения к следующей вершине после последней вершины
+        size_t nextIndex = (i + 1) % tile.getVertexCount();
+        // TODO: need to understand the algorithm
+        if (((tile[i].position.y > mousePos.y) != (tile[nextIndex].position.y > mousePos.y)) &&
+            (mousePos.x < (tile[nextIndex].position.x - tile[i].position.x) * (mousePos.y - tile[i].position.y) / (tile[nextIndex].position.y - tile[i].position.y) + tile[i].position.x))
+            isInside = !isInside;
+    }
+
+    return isInside;
+}
+
 void play() {
     std::mutex mtx;
     ConsoleDebugOutput consoleDebugOutput;     // DEBUG
 
-    // TODO: keep working on SFML
+    // SFMLTEST: clock test
     sf::Clock clock;    // DEBUG
 
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({800, 600}), "Simunomics");
     window.setFramerateLimit(60);
 
-    sf::View view(sf::Vector2f(400, 300), sf::Vector2f(800.f, 600.f));
-    view.setRotation(sf::Angle(sf::degrees(45)));
-    view.setSize(sf::Vector2f(400.f, 600.f));
+    // SFMLTEST: view test
+    sf::View view(sf::Vector2f(0, 0), sf::Vector2f(800.f, 600.f));
     window.setView(view);
 
+    // SFMLTEST: context output
     sf::ContextSettings contextSettings = window.getSettings();
     std::cout << "depth bits:" << contextSettings.depthBits << std::endl;
     std::cout << "stencil bits:" << contextSettings.stencilBits << std::endl;
     std::cout << "antialiasing level:" << contextSettings.antialiasingLevel << std::endl;
     std::cout << "version:" << contextSettings.majorVersion << "." << contextSettings.minorVersion << std::endl;
 
+    // SFMLTEST: texture test
     sf::Texture texture;
     if (!texture.loadFromFile("res/sprites/dickbutt.JPG")) {
         std::cerr << "[ERR] Texture loading failed!" << std::endl;
     }
 
+    // SFMLTEST: sprite test
     sf::Sprite sprite = sf::Sprite(texture);
 
+    // SFMLTEST: font and text test
     sf::Font font;
     if (!font.loadFromFile("res/fonts/cour.ttf")) {
         std::cerr << "[ERR] Font loading failed!" << std::endl;
@@ -75,10 +93,12 @@ void play() {
     text.setFillColor(sf::Color::Green);
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
+    // SFMLTEST: simple rectangle test
     sf::RectangleShape rectangle(sf::Vector2f(120.f, 120.f));
     rectangle.setPosition(sf::Vector2f(400, 300));
     rectangle.setFillColor(sf::Color::Green);
 
+    // SFMLTEST: simple vertex array test
     sf::VertexArray vertexArray(sf::PrimitiveType::TriangleStrip, 4);
     vertexArray[0].position = sf::Vector2f(300, 300);
     vertexArray[1].position = sf::Vector2f(300, 400);
@@ -89,38 +109,57 @@ void play() {
     vertexArray[2].color = sf::Color::Red;
     vertexArray[3].color = sf::Color::Blue;
 
-    const int level[] = {
-        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3,
-        0, 1, 0, 0, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 0, 0,
-        0, 1, 1, 0, 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 0, 0,
-        0, 0, 1, 0, 3, 0, 2, 2, 0, 0, 1, 1, 1, 1, 2, 0,
-        2, 0, 1, 0, 3, 0, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1,
-        0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1,
+    // SFMLTEST: custom entity test
+//    const int level[] = {
+//        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//        0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0,
+//        1, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3,
+//        0, 1, 0, 0, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 0, 0,
+//        0, 1, 1, 0, 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 0, 0,
+//        0, 0, 1, 0, 3, 0, 2, 2, 0, 0, 1, 1, 1, 1, 2, 0,
+//        2, 0, 1, 0, 3, 0, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1,
+//        0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1,
+//    };
+    const int level[] {
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
     };
 
     Map map;
-    if (!map.load("res/sprites/tileset.png", sf::Vector2u(32, 32), level, 16, 8)) {
+    if (!map.load("res/sprites/green-tile.png", sf::Vector2i(192, 96), level, 16, 8)) {
         std::cerr << "[ERR] Failed loading tileset!" << std::endl;
     }
 
-    sf::FloatRect bb = rectangle.getGlobalBounds();
+    // SFMLTEST: creating isometric tile entity (triangles)
+//    sf::VertexArray isoTileMap(sf::PrimitiveType::Triangles, 6);
+//    isoTileMap[0].position = sf::Vector2f(100, 100);
+//    isoTileMap[1].position = sf::Vector2f(100 - tileWidth / 2, 100 + tileHeight / 2);
+//    isoTileMap[2].position = sf::Vector2f(100, 100 + tileHeight);
+//    isoTileMap[3].position = sf::Vector2f(100, 100);
+//    isoTileMap[4].position = sf::Vector2f(100 + tileWidth / 2, 100 + tileHeight / 2);
+//    isoTileMap[5].position = sf::Vector2f(100, 100 + tileHeight);
+//    isoTileMap[0].texCoords = sf::Vector2f(tileWidth / 2, 0);
+//    isoTileMap[1].texCoords = sf::Vector2f(0, tileHeight / 2);
+//    isoTileMap[2].texCoords = sf::Vector2f(tileWidth / 2, tileHeight);
+//    isoTileMap[3].texCoords = sf::Vector2f(tileWidth / 2, 0);
+//    isoTileMap[4].texCoords = sf::Vector2f(tileWidth, tileHeight / 2);
+//    isoTileMap[5].texCoords = sf::Vector2f(tileWidth / 2, tileHeight);
+//
+//    sf::Texture tileTexture;
+//    if (!tileTexture.loadFromFile("res/sprites/green-tile.png")) {
+//        std::cerr << "[ERR] Couldn't load tile file." << std::endl;
+//    }
 
 //    std::thread simunomicsThread(simunomics, std::ref(mtx), std::ref(consoleDebugOutput));
-
+    // main loop
     while (window.isOpen()) {
-
-        // Получаем позицию мыши в мировых координатах
-        sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-
-        // Получаем локальные границы прямоугольника
-        sf::FloatRect localBounds = rectangle.getLocalBounds();
-
-        // Применяем трансформацию к границам прямоугольника
-        sf::Transform transform = rectangle.getTransform();
-        sf::FloatRect transformedBounds = transform.transformRect(localBounds);
-
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);     // constantly updating mouse position
         for (sf::Event event = sf::Event(); window.pollEvent(event);) {
             switch (event.type) {
                 case sf::Event::Closed:
@@ -137,63 +176,23 @@ void play() {
                 case sf::Event::TextEntered:
                     break;
                 case sf::Event::KeyPressed:
-                    if (event.key.scancode == sf::Keyboard::Scan::Escape)
-                    {
-//                        std::cout << "the escape key was pressed" << std::endl;
-////                        std::cout << "scancode: " << event.key.scancode << std::endl;
-////                        std::cout << "code: " << event.key.code << std::endl;
-//                        std::cout << "control: " << event.key.control << std::endl;
-//                        std::cout << "alt: " << event.key.alt << std::endl;
-//                        std::cout << "shift: " << event.key.shift << std::endl;
-//                        std::cout << "system: " << event.key.system << std::endl;
-//                        std::cout << "description: " << sf::Keyboard::getDescription(event.key.scancode).toAnsiString() << std::endl;
-//                        std::cout << "localize: " << sf::Keyboard::localize(event.key.scancode) << std::endl;
-//                        std::cout << "delocalize: " << sf::Keyboard::delocalize(event.key.code) << std::endl;
-                    }
                     break;
                 case sf::Event::KeyReleased:
                     break;
                 case sf::Event::MouseWheelScrolled:
-//                    if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Vertical)
-//                        std::cout << "wheel type: vertical" << std::endl;
-//                    else if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::Horizontal)
-//                        std::cout << "wheel type: horizontal" << std::endl;
-//                    else
-//                        std::cout << "wheel type: unknown" << std::endl;
-//                    std::cout << "wheel movement: " << event.mouseWheelScroll.delta << std::endl;
-//                    std::cout << "mouse x: " << event.mouseWheelScroll.x << std::endl;
-//                    std::cout << "mouse y: " << event.mouseWheelScroll.y << std::endl;
                     break;
                 case sf::Event::MouseButtonPressed:
-//                    if (event.mouseButton.button == sf::Mouse::Button::Left && bb.contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
-//                        std::cout << "rect pressed!" << std::endl;
-////                        rectangle.rotate(sf::Angle(sf::degrees(10.f)));
-//                    }
-//                    if (event.mouseButton.button == sf::Mouse::Button::Right)
-//                    {
-//                        std::cout << "the right button was pressed" << std::endl;
-//                        std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-//                        std::cout << "mouse y: " << event.mouseButton.y << std::endl;
-//                    }
-
-                    // Проверяем, попадает ли мышь в область трансформированного прямоугольника
-                    if (transformedBounds.contains(mousePos))
-                    {
-                        // Если мышь попадает, выводим сообщение в консоль
-                        std::cout << "Mouse clicked inside the transformed rectangle!" << std::endl;
+                    if (isMouseClickedInsideTile(sf::Vector2f(mousePos), map.m_vertices)) {
+                        std::cout << "Mouse clicked inside tile." << std::endl;
                     }
                     break;
                 case sf::Event::MouseButtonReleased:
                     break;
                 case sf::Event::MouseMoved:
-//                    std::cout << "new mouse x: " << event.mouseMove.x << std::endl;
-//                    std::cout << "new mouse y: " << event.mouseMove.y << std::endl;
                     break;
                 case sf::Event::MouseEntered:
-//                    std::cout << "the mouse cursor has entered the window" << std::endl;
                     break;
                 case sf::Event::MouseLeft:
-//                    std::cout << "the mouse cursor has left the window" << std::endl;
                     break;
                 case sf::Event::JoystickButtonPressed:
                     break;
@@ -221,12 +220,11 @@ void play() {
 
 //        window.draw(sprite);
 //        window.draw(text);
-        window.draw(rectangle);
+//        window.draw(rectangle);
 //        window.draw(rectangle, transform);
-
-        bb = rectangle.getGlobalBounds();
 //        window.draw(vertexArray);
-//        window.draw(map);
+        window.draw(map);
+//        window.draw(isoTileMap, & tileTexture);
 
         window.display();
     }

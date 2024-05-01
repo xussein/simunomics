@@ -6,10 +6,11 @@
 
 class Map: public sf::Drawable, public sf::Transformable {
 public:
-    bool load(const std::string & tileset, sf::Vector2u tileSize, const int * tiles, unsigned int width, unsigned int height);
+    bool load(const std::string & tileset, sf::Vector2i tileSize, const int * tiles, unsigned int mapWidth, unsigned int mapHeight);
+    sf::VertexArray m_vertices;     // TODO: set back to private, debugging
 private:
     void draw(sf::RenderTarget & target, const sf::RenderStates & states) const override;
-    sf::VertexArray m_vertices;
+
     sf::Texture m_tileset;
 };
 
