@@ -11,7 +11,7 @@ void init() {
     StateFactory::getInstance().registerStateClass(StateClass::Operating, []() -> std::unique_ptr<State> { return std::make_unique<Operating>(); });
 }
 
-void update() {    
+void update() {
     std::cout << "state: ";     // DEBUG
     int state;
     std::cin >> state;
@@ -41,7 +41,6 @@ bool isMouseClickedInsideTile(const sf::Vector2f & mousePos, const sf::VertexArr
 
     for (size_t i = 0; i < tile.getVertexCount(); i++)
     {
-        // Используем остаток от деления для обращения к следующей вершине после последней вершины
         size_t nextIndex = (i + 1) % tile.getVertexCount();
         // TODO: need to understand the algorithm
         if (((tile[i].position.y > mousePos.y) != (tile[nextIndex].position.y > mousePos.y)) &&
@@ -132,7 +131,7 @@ void play() {
     };
 
     Map map;
-    if (!map.load("res/sprites/green-tile.png", sf::Vector2i(192, 96), level, 16, 8)) {
+    if (!map.load("res/sprites/green-tile.png", sf::Vector2i(192, 96), level, 1, 1)) {
         std::cerr << "[ERR] Failed loading tileset!" << std::endl;
     }
 
@@ -182,9 +181,10 @@ void play() {
                 case sf::Event::MouseWheelScrolled:
                     break;
                 case sf::Event::MouseButtonPressed:
-                    if (isMouseClickedInsideTile(sf::Vector2f(mousePos), map.m_vertices)) {
-                        std::cout << "Mouse clicked inside tile." << std::endl;
-                    }
+                    map.isMapClicked(mousePos);
+//                    if () {
+//                        std::cout << "Mouse clicked inside map." << std::endl;
+//                    }
                     break;
                 case sf::Event::MouseButtonReleased:
                     break;
@@ -223,7 +223,8 @@ void play() {
 //        window.draw(rectangle);
 //        window.draw(rectangle, transform);
 //        window.draw(vertexArray);
-        window.draw(map);
+        map.draw(window);
+//        window.draw(map);
 //        window.draw(isoTileMap, & tileTexture);
 
         window.display();

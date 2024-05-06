@@ -1,6 +1,6 @@
-find_package(SFML REQUIRED COMPONENTS Graphics Audio Network Window System)
+find_package(SFML 3.0 REQUIRED COMPONENTS Graphics Audio Network Window System)
 
-add_executable(executable main.cpp functions.cpp ../lib/Map.cpp ../lib/Map.h)
+add_executable(executable main.cpp functions.cpp ../lib/Map.cpp ../lib/Tile.cpp)
 
 target_link_libraries(executable
     generator_lib
