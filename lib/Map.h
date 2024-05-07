@@ -1,8 +1,9 @@
-#ifndef SIMUNOMICS_MAP_H
-#define SIMUNOMICS_MAP_H    // TODO: fix name
+#ifndef LIB_SIMUNOMICS_MAP_H
+#define LIB_SIMUNOMICS_MAP_H    // TODO: fix name
 
 
 #include <SFML/Graphics.hpp>
+
 #include "Tile.h"
 
 class Map {
@@ -20,4 +21,4 @@ private:
 };
 
 
-#endif //SIMUNOMICS_MAP_H
+#endif // LIB_SIMUNOMICS_MAP_H

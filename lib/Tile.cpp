@@ -55,18 +55,16 @@ sf::Vector2i Tile::getIndex() {
     return m_index;
 }
 
-void Tile::draw(sf::RenderTarget & target, const sf::RenderStates & states) const {
-    sf::RenderStates newStates = states;
+void Tile::draw(sf::RenderTarget & target, sf::RenderStates states) const {
+    states.transform *= getTransform();
 
-    newStates.transform *= getTransform();
-
-    newStates.texture = & m_texture;
+    states.texture = & m_texture;
 
 //    for (int i = 0; i < m_vertices.getVertexCount(); i ++) {
 //        target.draw(m_texts[i], newStates);
 //    }
 
-    target.draw(m_vertices, newStates);
+    target.draw(m_vertices, states);
 }
 
 bool Tile::isTileClicked(const sf::Vector2i & mousePos) {

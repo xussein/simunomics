@@ -12,7 +12,7 @@ public:
 //    void init(sf::Texture & texture, sf::Vector2i tileSize, int x, int y);
     sf::Vector2i getIndex();
 private:
-    void draw(sf::RenderTarget & target, const sf::RenderStates & states) const override;
+    void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
     sf::VertexArray m_vertices;
     sf::Texture m_texture;
     sf::Vector2i m_index;

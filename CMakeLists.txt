@@ -9,6 +9,16 @@ set(REGISTRY_LIB_PATH lib/registry)
 set(OBJECT_LIB_PATH lib/objects)
 set(MISC_LIB_PATH lib/misc)
 
+set(REQUIRED_SFML_VERSION 2.6.1)
+set(DEBUG TRUE)
+
+if (REQUIRED_SFML_VERSION EQUAL 2.6.1)
+    find_package(SFML 2.6.1 REQUIRED COMPONENTS graphics window)
+    include_directories(D:/programs/c++/sfml-bundle/SFML-2.6.1/sfml/include)
+elseif(REQUIRED_SFML_VERSION EQUAL 3.0)
+    find_package(SFML 3.0 REQUIRED COMPONENTS Graphics Window)
+endif()
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/${EXE_PATH})
 add_subdirectory(${PROJECT_SOURCE_DIR}/${PLAYER_LIB_PATH})
 add_subdirectory(${PROJECT_SOURCE_DIR}/${GENERATOR_LIB_PATH})

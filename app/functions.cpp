@@ -86,7 +86,8 @@ void play() {
     if (!font.loadFromFile("res/fonts/cour.ttf")) {
         std::cerr << "[ERR] Font loading failed!" << std::endl;
     }
-    sf::Text text(font);
+    sf::Text text;
+    text.setFont(font);
     text.setString("Dickbutt!");
     text.setCharacterSize(24);
     text.setFillColor(sf::Color::Green);
