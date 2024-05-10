@@ -2,7 +2,7 @@ if (DEBUG)
     message("SFML LIBRARIES: ${SFML_LIBRARIES}")
 endif()
 
-add_executable(executable main.cpp functions.cpp ../lib/Map.cpp ../lib/Tile.cpp)
+add_executable(executable main.cpp functions.cpp ../lib/Map.cpp ../lib/Tile.cpp ../lib/Constants.h)
 
 target_link_libraries(
     executable

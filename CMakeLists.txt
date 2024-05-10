@@ -14,7 +14,6 @@ set(DEBUG TRUE)
 
 if (REQUIRED_SFML_VERSION EQUAL 2.6.1)
     find_package(SFML 2.6.1 REQUIRED COMPONENTS graphics window)
-    include_directories(D:/programs/c++/sfml-bundle/SFML-2.6.1/sfml/include)
 elseif(REQUIRED_SFML_VERSION EQUAL 3.0)
     find_package(SFML 3.0 REQUIRED COMPONENTS Graphics Window)
 endif()

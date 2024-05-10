@@ -20,7 +20,4 @@
 
 void play();
 
-static size_t tileWidth = 192;
-static size_t tileHeight = 96;
-
 #endif  // APP_FUNCTIONS_H
