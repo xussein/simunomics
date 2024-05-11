@@ -75,7 +75,7 @@ void play() {
         0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1,
     };
     Map map;
-    if (!map.load("res/sprites/tileset.png", sf::Vector2i(192, 96), level, 16, 8)) {
+    if (!map.load("res/sprites/tileset.png", sf::Vector2i(192, 96), level, 1, 4)) {
         std::cerr << "[ERR] Failed loading tileset!" << std::endl;
     }
 
