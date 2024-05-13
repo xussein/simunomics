@@ -1,4 +1,3 @@
-#include <cmath>
 #include "Tile.h"
 
 Tile::Tile(sf::Texture & texture, sf::Vector2i tileSize, int x, int y) {

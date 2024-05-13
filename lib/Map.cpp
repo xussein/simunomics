@@ -16,18 +16,20 @@ bool Map::load(const std::string & tileset, sf::Vector2i tileSize, const int * t
         }
     }
 
-    m_vertices.resize(mapWidth * mapHeight * 12);
     m_vertices.setPrimitiveType(sf::PrimitiveType::Triangles);
+    m_vertices.resize(mapWidth * mapHeight * 12);
 
     for (int i = 0; i < mapWidth; i ++) {
         for (int j = 0; j < mapHeight; j ++) {
-            int tileNumber = tiles[i + j * mapHeight];
+            int tileNumber = tiles[i + j * mapWidth];
 
             float offsetX = i * tileSize.x / 2 + j * tileSize.x / 2;
             float offsetY = j * tileSize.y / 2 - i * tileSize.y / 2;
 
-            sf::Vertex * triangles = & m_vertices[(i + j * mapHeight) * 12];
+            sf::Vertex * triangles = & m_vertices[(i + j * mapWidth) * 12];
 
+            // so there are 4 triangles
+            // point O is the center, other points are: 0 - A, 1 - B, 5 - C, 8 - D
             // ABO triangle
             triangles[0].position = sf::Vector2f(offsetX, offsetY + tileSize.y / 2);                   // A (0, h/2)
             triangles[1].position = sf::Vector2f(offsetX + tileSize.x / 2, offsetY);                   // B (w/2, 0)
@@ -96,29 +98,29 @@ sf::Vector2f Map::getCenterCoords() {
 //    }
 //}
 
-void Map::isMapClicked(const sf::Vector2f & mousePos) {
-
-    for (Tile & tile: m_tiles) {
-        if (tile.isInsideTile(mousePos)) {
-            // tile.elevateVertex(m_vertexPoint.getPosition());
-#if DEBUG == 1
-            std::cout << tile.getIndex().x << ' ' << tile.getIndex().y << std::endl;
-#endif
-        }
-    }
-}
-
-void Map::isMapHovered(const sf::Vector2f & mousePos) {
-    for (Tile & tile: m_tiles) {
-        if (tile.isInsideTile(mousePos)) {
-            m_vertexPoint.setFillColor(sf::Color::White);
-            m_vertexPoint.setPosition(tile.getNearestVertex(mousePos));
-#if DEBUG == 1
+//void Map::isMapClicked(const sf::Vector2f & mousePos) {
+//
+//    for (Tile & tile: m_tiles) {
+//        if (tile.isInsideTile(mousePos)) {
+//            // tile.elevateVertex(m_vertexPoint.getPosition());
+//#if DEBUG == 1
 //            std::cout << tile.getIndex().x << ' ' << tile.getIndex().y << std::endl;
-#endif
-        }
-    }
-}
+//#endif
+//        }
+//    }
+//}
+
+//void Map::isMapHovered(const sf::Vector2f & mousePos) {
+//    for (Tile & tile: m_tiles) {
+//        if (tile.isInsideTile(mousePos)) {
+//            m_vertexPoint.setFillColor(sf::Color::White);
+////            m_vertexPoint.setPosition(tile.getNearestVertex(mousePos));
+//#if DEBUG == 1
+////            std::cout << tile.getIndex().x << ' ' << tile.getIndex().y << std::endl;
+//#endif
+//        }
+//    }
+//}
 
 void Map::move(sf::View & view, sf::Vector2f offset) {
     view.move(offset);
@@ -130,6 +132,8 @@ void Map::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     states.texture = & m_tilesTextures[0];
 
     target.draw(m_vertices, states);
+
+    target.draw(m_vertexPoint);
 
 #if DEBUG == 1
     // DEBUG: selecting index of tile and showing its indexes
@@ -148,4 +152,72 @@ void Map::draw(sf::RenderTarget &target, sf::RenderStates states) const {
         }
 
 #endif
+}
+
+void Map::getNearestVertex(sf::Vector2f mousePos) {
+    int i = getCurrentlyHoveredTile(mousePos);
+#if DEBUG == 1
+    std::cout << i << '\n';
+#endif
+    // m_vertices[2].texCoords - point O, center of the tile
+    // comparing mouse position relatively to tile center
+    // then calculating distance to a pair of vertices
+    // which indexes are: 0 - A, 1 - B, 5 - C, 8 - D (+12 for each tile)
+    if (mousePos.x < m_vertices[i + 2].position.x && mousePos.y < m_vertices[i + 2].position.y) {             // upper left quadrangle, ABO
+        if (sqrt(pow(mousePos.x - m_vertices[i + 0].position.x, 2) + pow(mousePos.x - m_vertices[i + 0].position.x, 2)) <=
+            sqrt(pow(mousePos.x - m_vertices[i + 1].position.x, 2) + pow(mousePos.x - m_vertices[i + 1].position.x, 2))) {
+            m_vertexPoint.setPosition(m_vertices[i + 0].position);
+        } else {
+            m_vertexPoint.setPosition(m_vertices[i + 1].position);
+        }
+    } else if (mousePos.x < m_vertices[i + 2].position.x && mousePos.y >= m_vertices[i + 2].position.y) {     // lower left quadrangle, AOD
+        if (sqrt(pow(mousePos.x - m_vertices[i + 0].position.x, 2) + pow(mousePos.x - m_vertices[i + 0].position.x, 2)) <=
+            sqrt(pow(mousePos.x - m_vertices[i + 8].position.x, 2) + pow(mousePos.x - m_vertices[i + 8].position.x, 2))) {
+            m_vertexPoint.setPosition(m_vertices[i + 0].position);
+        } else {
+            m_vertexPoint.setPosition(m_vertices[i + 8].position);
+        }
+    } else if (mousePos.x >= m_vertices[i + 2].position.x && mousePos.y >= m_vertices[i + 2].position.y) {    // lower right quadrangle, DOC
+        if (sqrt(pow(mousePos.x - m_vertices[i + 5].position.x, 2) + pow(mousePos.x - m_vertices[i + 5].position.x, 2)) <=
+            sqrt(pow(mousePos.x - m_vertices[i + 8].position.x, 2) + pow(mousePos.x - m_vertices[i + 8].position.x, 2))) {
+            m_vertexPoint.setPosition(m_vertices[i + 5].position);
+        } else {
+            m_vertexPoint.setPosition(m_vertices[i + 8].position);
+        }
+    } else if (mousePos.x >= m_vertices[i + 2].position.x && mousePos.y < m_vertices[i + 2].position.y) {     // upper right quadrangle, BOC
+        if (sqrt(pow(mousePos.x - m_vertices[i + 1].position.x, 2) + pow(mousePos.x - m_vertices[i + 1].position.x, 2)) <=
+            sqrt(pow(mousePos.x - m_vertices[i + 5].position.x, 2) + pow(mousePos.x - m_vertices[i + 5].position.x, 2))) {
+            m_vertexPoint.setPosition(m_vertices[i + 1].position);
+        } else {
+            m_vertexPoint.setPosition(m_vertices[i + 5].position);
+        }
+    }
+}
+
+int Map::getCurrentlyHoveredTile(sf::Vector2f mousePos) {
+    bool isInside = false;
+
+    // point inside of polygon algorithm, or ray-casting algorithm
+    for (int i = 0; i < m_vertices.getVertexCount(); i += 12) {
+        // for each of outer points
+        for (size_t j = 0; j < 4; j ++)
+        {
+            size_t nextIndex = (j + 1) % 4;
+            // TODO: need to understand the algorithm
+            if (((m_vertices[outerVerticesIndexes[j] + i].position.y > mousePos.y) != (m_vertices[outerVerticesIndexes[nextIndex] + i].position.y > mousePos.y)) &&
+                (mousePos.x <
+                 (m_vertices[outerVerticesIndexes[nextIndex] + i].position.x - m_vertices[outerVerticesIndexes[j] + i].position.x) * (mousePos.y - m_vertices[outerVerticesIndexes[j] + i].position.y) /
+                 (m_vertices[outerVerticesIndexes[nextIndex] + i].position.y - m_vertices[outerVerticesIndexes[j] + i].position.y) + m_vertices[outerVerticesIndexes[j] + i].position.x)) {
+                isInside = !isInside;
+            }
+        }
+        if (isInside) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void Map::elevateVertex(int tileIndex) {
+
 }

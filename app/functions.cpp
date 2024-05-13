@@ -114,12 +114,13 @@ void play() {
                     window.setView(view);
                     break;
                 case sf::Event::MouseButtonPressed:
-                    map.isMapClicked(worldPos);
+//                    map.isMapClicked(worldPos);
                     break;
                 case sf::Event::MouseButtonReleased:
                     break;
                 case sf::Event::MouseMoved:
-                    map.isMapHovered(worldPos);
+//                    map.isMapHovered(worldPos);
+                    map.getNearestVertex(worldPos);
                     break;
                 case sf::Event::MouseEntered:
                     break;
