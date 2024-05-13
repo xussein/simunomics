@@ -36,21 +36,6 @@ void simunomics(std::mutex & mtx, ConsoleDebugOutput & consoleDebugOutput) {
     }
 }
 
-bool isMouseClickedInsideTile(const sf::Vector2f & mousePos, const sf::VertexArray & tile) {
-    bool isInside = false;
-
-    for (size_t i = 0; i < tile.getVertexCount(); i++)
-    {
-        size_t nextIndex = (i + 1) % tile.getVertexCount();
-        // TODO: need to understand the algorithm
-        if (((tile[i].position.y > mousePos.y) != (tile[nextIndex].position.y > mousePos.y)) &&
-            (mousePos.x < (tile[nextIndex].position.x - tile[i].position.x) * (mousePos.y - tile[i].position.y) / (tile[nextIndex].position.y - tile[i].position.y) + tile[i].position.x))
-            isInside = !isInside;
-    }
-
-    return isInside;
-}
-
 void play() {
     std::mutex mtx;
     ConsoleDebugOutput consoleDebugOutput;     // DEBUG
@@ -58,14 +43,17 @@ void play() {
     // SFMLTEST: clock test
     sf::Clock clock;    // DEBUG
 
-    sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({800, 600}), "Simunomics");
+    sf::ContextSettings contextSettings;
+    contextSettings.antialiasingLevel = 16;
+
+    sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({800, 600}), "Simunomics", sf::Style::Default, contextSettings);
     window.setFramerateLimit(60);
 
     sf::View view(sf::Vector2f(0, 0), sf::Vector2f(800.f, 600.f));
     window.setView(view);
 
     const int level[] = {
-        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        0, 1, 2, 3, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0,
         1, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3,
         0, 1, 0, 0, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 0, 0,
@@ -75,7 +63,7 @@ void play() {
         0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1,
     };
     Map map;
-    if (!map.load("res/sprites/tileset.png", sf::Vector2i(192, 96), level, 1, 4)) {
+    if (!map.load("res/sprites/tileset.png", sf::Vector2i(192, 96), level, 3, 2)) {
         std::cerr << "[ERR] Failed loading tileset!" << std::endl;
     }
 
@@ -131,6 +119,7 @@ void play() {
                 case sf::Event::MouseButtonReleased:
                     break;
                 case sf::Event::MouseMoved:
+                    map.isMapHovered(worldPos);
                     break;
                 case sf::Event::MouseEntered:
                     break;
@@ -160,14 +149,8 @@ void play() {
         }
         window.clear();
 
-//        window.draw(sprite);
-//        window.draw(text);
-//        window.draw(rectangle);
-//        window.draw(rectangle, transform);
-//        window.draw(vertexArray);
-        map.draw(window);
-//        window.draw(map);
-//        window.draw(isoTileMap, & tileTexture);
+//        map.draw(window);
+        window.draw(map);
 
         window.display();
     }

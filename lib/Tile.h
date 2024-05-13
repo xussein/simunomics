@@ -13,14 +13,16 @@
 class Tile: public sf::Drawable, public sf::Transformable {
 public:
     Tile(sf::Texture & texture, sf::Vector2i tileSize, int x, int y);
-    bool isTileClicked(const sf::Vector2f& mousePos);
+    bool isInsideTile(const sf::Vector2f& mousePos);
     sf::Vector2i getIndex();
+    sf::Vector2f getNearestVertex(const sf::Vector2f & mousePos);
+    void elevateVertex(sf::Vector2f currentVertex);
 private:
     void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
-    sf::ConvexShape m_tileShape;
     sf::VertexArray m_vertices;
     sf::Texture m_texture;
     sf::Vector2i m_index;
+    sf::Vector2i m_tileSize;
     int m_zIndex;
 };
 
