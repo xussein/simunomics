@@ -16,7 +16,7 @@
 #include "../lib/objects/h/states/Idle.h"
 #include "../lib/objects/h/states/Operating.h"
 #include "../lib/misc/h/ConsoleDebugOutput.h"
-#include "../lib/Map.h"
+#include "../lib/graphics/Map.h"
 
 void play();
 

@@ -2,7 +2,7 @@
 #define LIB_SIMUNOMICS_CONSTANTS_H
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 static const int tileWidth = 192;
 static const int tileHeight = 96;

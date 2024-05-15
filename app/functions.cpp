@@ -63,7 +63,7 @@ void play() {
         0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1,
     };
     Map map;
-    if (!map.load("res/sprites/tileset.png", sf::Vector2i(192, 96), level, 3, 2)) {
+    if (!map.load("res/sprites/tileset.png", sf::Vector2i(192, 96), level, 5, 5)) {
         std::cerr << "[ERR] Failed loading tileset!" << std::endl;
     }
 
@@ -114,7 +114,7 @@ void play() {
                     window.setView(view);
                     break;
                 case sf::Event::MouseButtonPressed:
-//                    map.isMapClicked(worldPos);
+                    map.elevateVertex();    // TODO: make sure that tile is hovered first, otherwise no index will be present for vertex elevation
                     break;
                 case sf::Event::MouseButtonReleased:
                     break;

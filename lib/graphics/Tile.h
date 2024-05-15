@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
-#include "Constants.h"
+#include "../Constants.h"
 
 #if DEBUG == 1
 #include <iostream>
