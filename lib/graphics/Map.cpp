@@ -3,6 +3,7 @@
 bool Map::load(const std::string & tileset, sf::Vector2i tileSize, const int * tiles, size_t mapWidth, size_t mapHeight) {
     m_mapSize.x = mapWidth;
     m_mapSize.y = mapHeight;
+    m_tileSize = tileSize;
     // checking if file exists and loading tileset from file path
     if (!m_tileset.loadFromFile(tileset)) {
         return false;   // TODO: throw exception
@@ -36,17 +37,17 @@ bool Map::load(const std::string & tileset, sf::Vector2i tileSize, const int * t
             triangles[1].position = sf::Vector2f(oX + tileSize.x / 2, oY);                   // B (w/2, 0)
             triangles[2].position = sf::Vector2f(oX + tileSize.x / 2, oY + tileSize.y / 2);  // O (w/2, h/2)
             // 2. BOC triangle
-            triangles[3].position = triangles[1].position;
-            triangles[4].position = triangles[2].position;
+            triangles[3].position = triangles[1].position;                                         // B (w/2, 0)
+            triangles[4].position = triangles[2].position;                                         // O (w/2, h/2)
             triangles[5].position = sf::Vector2f(oX + tileSize.x, oY + tileSize.y / 2);      // C (w, h/2)
             // 3. AOD triangle
-            triangles[6].position = triangles[0].position;
-            triangles[7].position = triangles[2].position;
+            triangles[6].position = triangles[0].position;                                         // A (0, h/2)
+            triangles[7].position = triangles[2].position;                                         // O (w/2, h/2)
             triangles[8].position = sf::Vector2f(oX + tileSize.x / 2, oY + tileSize.y);      // D (w/2, h)
             // 4. DOC triangle
-            triangles[9].position = triangles[8].position;
-            triangles[10].position = triangles[2].position;
-            triangles[11].position = triangles[5].position;
+            triangles[9].position = triangles[8].position;                                         // D (w/2, h)
+            triangles[10].position = triangles[2].position;                                        // O (w/2, h/2)
+            triangles[11].position = triangles[5].position;                                        // C (w, h/2)
 
             // tileNumber defines which tile is taken from imported tile textures (from file):
             int tileNumber = tiles[i + j * mapWidth];
@@ -273,33 +274,54 @@ void Map::elevateVertex() {
     int vertexIndex = m_elevationPointer.getTileIndex();
 #if DEBUG == 1
     std::cout << vertexIndex << ' '
-              << vertexIndex + 12 * (m_mapSize.x + 1) << ' '
-              << vertexIndex - 12 * (m_mapSize.x + 1) << ' '
+              << vertexIndex % ((m_mapSize.x) * 12) << ' '
+              << m_mapSize.x * 12 - 7 << ' '
               << m_vertices.getVertexCount() << '\n';
 #endif
     // if vertex is left (point A) in the current tile and in order to stay inside VertexArray
-    if (vertexIndex % 12 == 0 && vertexIndex - 12 * (m_mapSize.x + 1) >= 0) {
+    if (vertexIndex % 12 == 0 && vertexIndex - 12 * (m_mapSize.x + 1) >= 0 && vertexIndex % (m_mapSize.x * 12) != 0) {
+        // two A vertices
+        m_vertices[vertexIndex].position.y -= m_tileSize.y / 2;
+        m_vertices[vertexIndex + 6].position.y -= m_tileSize.y / 2;
+        // two B vertices
+        m_vertices[vertexIndex - 11].position.y -= m_tileSize.y / 2;
+        m_vertices[vertexIndex - 9].position.y -= m_tileSize.y / 2;
+        // two C vertices
+        m_vertices[vertexIndex - 12 * (m_mapSize.x + 1) + 5].position.y -= m_tileSize.y / 2;
+        m_vertices[vertexIndex - 12 * (m_mapSize.x + 1) + 11].position.y -= m_tileSize.y / 2;
+        // two D vertices
+        m_vertices[vertexIndex - 12 * m_mapSize.x + 8].position.y -= m_tileSize.y / 2;
+        m_vertices[vertexIndex - 12 * m_mapSize.x + 9].position.y -= m_tileSize.y / 2;
 #if DEBUG == 1
-            std::cout << "elevation is allowed, left (point A)\n";
+        std::cout << "elevation is allowed, left (point A)\n";
 #endif
     // if vertex is upper (point B) in the current tile and in order to stay inside VertexArray
-    } else if (vertexIndex % 12 == 1 && vertexIndex - 12 * m_mapSize.x + 14 >= 0) {
+    } else if (vertexIndex % 12 == 1 && vertexIndex - 12 * m_mapSize.x >= 1 && vertexIndex % (m_mapSize.x * 12) != (m_mapSize.x * 12 - 11)) {
+        // two A vertices
+        m_vertices[vertexIndex].position.y -= m_tileSize.y / 2;
+        m_vertices[vertexIndex + 6].position.y -= m_tileSize.y / 2;
+        // two B vertices
+        m_vertices[vertexIndex].position.y -= m_tileSize.y / 2;
+        m_vertices[vertexIndex + 2].position.y -= m_tileSize.y / 2;
+        // two C vertices
+        m_vertices[vertexIndex - 12 * (m_mapSize.x + 1) + 5].position.y -= m_tileSize.y / 2;
+        m_vertices[vertexIndex - 12 * (m_mapSize.x + 1) + 11].position.y -= m_tileSize.y / 2;
+        // two D vertices
+        m_vertices[vertexIndex - 12 * m_mapSize.x + 8].position.y -= m_tileSize.y / 2;
+        m_vertices[vertexIndex - 12 * m_mapSize.x + 9].position.y -= m_tileSize.y / 2;
 #if DEBUG == 1
-            std::cout << "elevation is allowed, upper (point B)\n";
+        std::cout << "elevation is allowed, upper (point B)\n";
 #endif
-    } else if (vertexIndex % 12 == 5) {     // if vertex is right (point C) in the current tile
-        // In order to stay inside VertexArray
-        if (vertexIndex + 12 * m_mapSize.x < m_vertices.getVertexCount() - 15) {
+    // if vertex is right (point C) in the current tile and in order to stay inside VertexArray
+    } else if (vertexIndex % 12 == 5 && vertexIndex + 12 * (m_mapSize.x + 1) < m_vertices.getVertexCount() && vertexIndex % (m_mapSize.x * 12) != (m_mapSize.x * 12 - 7)) {
 #if DEBUG == 1
-            std::cout << "elevation is allowed, right (point C)\n";
+        std::cout << "elevation is allowed, right (point C)\n";
 #endif
-        }
-    } else if (vertexIndex % 12 == 8) {     // if vertex is lower (point D) in the current tile
-        // In order to stay inside VertexArray
-        if (vertexIndex - 12 * m_mapSize.x >= 15) {
+    // if vertex is lower (point D) in the current tile and in order to stay inside VertexArray
+    } else if (vertexIndex % 12 == 8 && vertexIndex + 12 * m_mapSize.x < m_vertices.getVertexCount() && vertexIndex % (m_mapSize.x * 12) != 8) {
 #if DEBUG == 1
             std::cout << "elevation is allowed, lower (point D)\n";
 #endif
-        }
     }
 }
+

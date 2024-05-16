@@ -28,6 +28,7 @@ public:
 private:
 //    std::vector<Tile> m_tiles;
     sf::Vector2i m_mapSize;
+    sf::Vector2i m_tileSize;
     std::vector<sf::Texture> m_tilesTextures;
     sf::Texture m_tileset;
     sf::VertexArray m_vertices;
